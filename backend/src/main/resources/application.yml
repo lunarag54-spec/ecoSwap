@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ecoswap
+    username: postgres
+    password: TU_CONTRASEÑA
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  secret: 8pZS7rvlq+jvwkaoqxhaXNbQTo9/lrx7VYLVEP6iq5lIe6Dj0nf2a0ozpX0h6zspqUHaNxMM4NnTg+vYRbxnbQ==
+  expiration: 86400000
