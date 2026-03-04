@@ -1,4 +1,4 @@
-package com.ecoswap.backend.security;
+package com.ecoswap.backend.config;
 
 import com.ecoswap.backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -29,9 +29,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos (registro y login)
+                        // Permitir registro y login sin token
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        // Swagger y docs (si los tienes activados)
+                        // Permitir Swagger si lo tienes (opcional)
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
