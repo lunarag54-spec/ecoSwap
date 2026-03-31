@@ -4,6 +4,7 @@ import com.ecoswap.backend.dto.ProductRequest;
 import com.ecoswap.backend.dto.ProductResponse;
 import com.ecoswap.backend.entity.Product;
 import com.ecoswap.backend.entity.User;
+import com.ecoswap.backend.exception.ResourceNotFoundException;
 import com.ecoswap.backend.repository.ProductRepository;
 import com.ecoswap.backend.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -87,12 +88,12 @@ public class ProductService {
     public ProductResponse updateProduct(Long productId, ProductRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-        // Seguridad: solo el propietario puede editar
+        // Solo el propietario puede editar
         if (!product.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("No tienes permiso para editar este producto");
         }
@@ -102,7 +103,7 @@ public class ProductService {
         product.setPrice(request.getPrice());
         product.setCategory(request.getCategory());
         product.setCondition(request.getCondition());
-        if (request.getImageUrl() != null) {
+        if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
             product.setImageUrl(request.getImageUrl());
         }
 
@@ -113,12 +114,12 @@ public class ProductService {
     public void deleteProduct(Long productId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-        // Seguridad: solo el propietario puede eliminar
+        // Solo el propietario puede eliminar
         if (!product.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("No tienes permiso para eliminar este producto");
         }

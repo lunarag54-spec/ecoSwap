@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
-@PreAuthorize("hasRole('ADMIN')")   // Todos los endpoints de esta clase requieren rol ADMIN
+@PreAuthorize("hasRole('ADMIN')")   // Todos los métodos requieren rol ADMIN
 public class AdminController {
 
     private final UserRepository userRepository;
@@ -34,7 +34,7 @@ public class AdminController {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
-    // Eliminar un usuario (y sus productos por cascade)
+    // Eliminar un usuario
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
@@ -44,16 +44,15 @@ public class AdminController {
     // Listar todos los productos (de todos los usuarios)
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productRepository.findAll()
-                .stream()
-                .map(productService::mapToResponse)   // reutilizamos el mapper
+        List<ProductResponse> products = productRepository.findAll().stream()
+                .map(productService::mapToResponse)
                 .toList();
         return ResponseEntity.ok(products);
     }
 
     // Eliminar cualquier producto
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAnyProduct(@PathVariable Long id) {
         productRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
