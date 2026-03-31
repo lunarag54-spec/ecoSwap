@@ -6,9 +6,11 @@ import com.ecoswap.backend.entity.Product;
 import com.ecoswap.backend.entity.User;
 import com.ecoswap.backend.repository.ProductRepository;
 import com.ecoswap.backend.repository.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,15 +57,20 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductResponse> searchProducts(String category, Product.Condition condition,
-            BigDecimal minPrice, BigDecimal maxPrice) {
-        return productRepository.search(category, condition, minPrice, maxPrice)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<ProductResponse> searchProducts(
+            String category,
+            Product.Condition condition,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Pageable pageable) {          // ← Asegúrate que sea el Pageable correcto
+
+        Page<Product> products = productRepository.search(
+                category, condition, minPrice, maxPrice, (org.springframework.data.domain.Pageable) pageable);
+
+        return products.map(this::mapToResponse);
     }
 
-    private ProductResponse mapToResponse(Product product) {
+    public ProductResponse mapToResponse(Product product) {
         ProductResponse response = new ProductResponse();
         response.setId(product.getId());
         response.setTitle(product.getTitle());
@@ -75,5 +82,47 @@ public class ProductService {
         response.setUsername(product.getUser().getUsername());
         response.setCreatedAt(product.getCreatedAt());
         return response;
+    }
+
+    public ProductResponse updateProduct(Long productId, ProductRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        // Seguridad: solo el propietario puede editar
+        if (!product.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("No tienes permiso para editar este producto");
+        }
+
+        product.setTitle(request.getTitle());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(request.getCategory());
+        product.setCondition(request.getCondition());
+        if (request.getImageUrl() != null) {
+            product.setImageUrl(request.getImageUrl());
+        }
+
+        product = productRepository.save(product);
+        return mapToResponse(product);
+    }
+
+    public void deleteProduct(Long productId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        // Seguridad: solo el propietario puede eliminar
+        if (!product.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("No tienes permiso para eliminar este producto");
+        }
+
+        productRepository.delete(product);
     }
 }

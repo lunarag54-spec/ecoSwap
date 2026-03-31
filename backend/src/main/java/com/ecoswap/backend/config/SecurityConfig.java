@@ -29,11 +29,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir registro y login sin token
+                        // Endpoints públicos
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        // Permitir Swagger si lo tienes (opcional)
+                        // Swagger (opcional)
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // Todo lo demás requiere autenticación
+                        // Endpoints de ADMIN
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
