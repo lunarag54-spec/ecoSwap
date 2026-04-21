@@ -31,11 +31,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        // Swagger (si lo usas)
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // Endpoints exclusivos para ADMIN
+
+                        // Endpoints de favoritos (permitidos para usuarios autenticados)
+                        .requestMatchers("/api/favorites/**").authenticated()
+
+                        // Endpoints de ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // Todo lo demás requiere estar autenticado
+
+                        // Swagger (opcional)
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
