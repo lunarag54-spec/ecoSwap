@@ -10,8 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -47,15 +50,11 @@ public class ProductController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
 
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ?
-                Sort.Direction.ASC : Sort.Direction.DESC;
-
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = (Pageable) PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
 
-        Page<ProductResponse> response = productService.searchProducts(
-                category, condition, minPrice, maxPrice, pageable);
-
-        return ResponseEntity.ok(response);
+        Page<ProductResponse> result = productService.searchProducts(category, condition, minPrice, maxPrice, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}")

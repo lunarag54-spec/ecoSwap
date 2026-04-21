@@ -18,7 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByConditionAndIsActiveTrue(Product.Condition condition);
 
-    // Método corregido con Pageable correcto
     @Query("SELECT p FROM Product p WHERE p.isActive = true " +
             "AND (:category IS NULL OR p.category = :category) " +
             "AND (:condition IS NULL OR p.condition = :condition) " +

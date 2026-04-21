@@ -1,5 +1,9 @@
 package com.ecoswap.backend.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import com.ecoswap.backend.dto.ProductRequest;
 import com.ecoswap.backend.dto.ProductResponse;
 import com.ecoswap.backend.entity.Product;
@@ -11,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,10 +66,9 @@ public class ProductService {
             Product.Condition condition,
             BigDecimal minPrice,
             BigDecimal maxPrice,
-            Pageable pageable) {          // ← Asegúrate que sea el Pageable correcto
+            Pageable pageable) {   // ← Debe ser org.springframework.data.domain.Pageable
 
-        Page<Product> products = productRepository.search(
-                category, condition, minPrice, maxPrice, (org.springframework.data.domain.Pageable) pageable);
+        Page<Product> products = productRepository.search(category, condition, minPrice, maxPrice, pageable);
 
         return products.map(this::mapToResponse);
     }
