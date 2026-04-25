@@ -3,6 +3,8 @@ package com.ecoswap.backend.controller;
 import com.ecoswap.backend.dto.ProductRequest;
 import com.ecoswap.backend.dto.ProductResponse;
 import com.ecoswap.backend.entity.Product;
+import com.ecoswap.backend.exception.ResourceNotFoundException;
+import com.ecoswap.backend.repository.ProductRepository;
 import com.ecoswap.backend.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -24,8 +26,11 @@ public class ProductController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    private final ProductRepository productRepository;
+
+    public ProductController(ProductService productService, ProductRepository productRepository) {
         this.productService = productService;
+        this.productRepository = productRepository;
     }
 
     @PostMapping
@@ -68,5 +73,12 @@ public class ProductController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getById(@PathVariable Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+
+        return ResponseEntity.ok(productService.mapToResponse(product));
     }
 }

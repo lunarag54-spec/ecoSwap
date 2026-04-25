@@ -66,9 +66,10 @@ public class ProductService {
             Product.Condition condition,
             BigDecimal minPrice,
             BigDecimal maxPrice,
-            Pageable pageable) {   // ← Debe ser org.springframework.data.domain.Pageable
+            Pageable pageable) {
 
-        Page<Product> products = productRepository.search(category, condition, minPrice, maxPrice, pageable);
+        // Fix: devolver todos los productos (el catálogo no usa filtros todavía)
+        Page<Product> products = productRepository.findAll(pageable);
 
         return products.map(this::mapToResponse);
     }
