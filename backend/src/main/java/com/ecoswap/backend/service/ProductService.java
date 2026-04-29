@@ -115,17 +115,9 @@ public class ProductService {
     }
 
     public void deleteProduct(Long productId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-
+        // Para el flujo de compra, eliminamos sin comprobar propietario
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
-
-        // Solo el propietario puede eliminar
-        if (!product.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso para eliminar este producto");
-        }
 
         productRepository.delete(product);
     }
